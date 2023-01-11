@@ -100,7 +100,7 @@ class CashierScreen extends StatelessWidget {
                       children: [
                         Expanded(
                             child: boxRectangle(
-                                "Pengunjung Jam ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : DateTime.now().hour}",
+                                "Pengunjung ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : "Jam ${DateTime.now().hour}"}",
                                 pengunjungDataNowHour,
                                 height: 100)),
                       ],
@@ -117,32 +117,36 @@ class CashierScreen extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 20.0,
-                          ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.40,
+                            height: MediaQuery.of(context).size.height * 0.37,
                             child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Column(
-                                    children: [
-                                      detailsContainer(),
-                                      detailsContainer(),
-                                      detailsContainer(),
-                                      detailsContainer(),
-                                      detailsContainer(),
-                                      detailsContainer(),
-                                    ],
-                                  ),
-                                ],
+                              physics: const ScrollPhysics(),
+                              child: MediaQuery.removePadding(
+                                context: context,
+                                removeTop: true,
+                                child: ListView(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  children: snapshot.data!.docs
+                                      .map((DocumentSnapshot document) {
+                                        Map<String, dynamic> data = document
+                                            .data()! as Map<String, dynamic>;
+                                        String tanggal = document.id.toString();
+                                        String tanggalFix =
+                                            "${tanggal.substring(0, 2)} - ${tanggal.substring(2, 4)} - ${tanggal.substring(4, 8)}";
+                                        return detailsContainer(tanggalFix,
+                                            data["value"].toString());
+                                      })
+                                      .toList()
+                                      .cast(),
+                                ),
                               ),
                             ),
                           )
@@ -157,7 +161,7 @@ class CashierScreen extends StatelessWidget {
     );
   }
 
-  Container detailsContainer() {
+  Container detailsContainer(String title, String sub) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
@@ -172,7 +176,7 @@ class CashierScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
-                "Dewa",
+                title,
                 style: whiteTextStyle.copyWith(
                   fontSize: 20.0,
                 ),
@@ -183,7 +187,7 @@ class CashierScreen extends StatelessWidget {
                     width: 20.0,
                   ),
                   Text(
-                    "Rp134.000",
+                    "Pengunjung total : $sub",
                     style: whiteTextStyle.copyWith(
                       fontSize: 18,
                     ),
