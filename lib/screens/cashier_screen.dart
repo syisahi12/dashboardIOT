@@ -6,6 +6,8 @@ class CashierScreen extends StatelessWidget {
   const CashierScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -27,7 +29,34 @@ class CashierScreen extends StatelessWidget {
               );
             } else {
               var items = snapshot.data;
-              print(items!.docs[items.docs.length - 1]["value"]);
+              final pengunjungDataNowHour = items!.docs[items.docs.length - 1]
+                      .data()
+                      .toString()
+                      .contains("pengunjung_jam_${DateTime.now().hour}")
+                  ? items.docs[items.docs.length - 1]
+                          ["pengunjung_jam_${DateTime.now().hour}"]
+                      .toString()
+                  : "0";
+              Future<String?> pengunjungDataNow({int kapan = 0}) async {
+                String currentDate =
+                    "${(now.day - kapan).toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${now.year.toString()}";
+
+                String? dataDocs;
+                await FirebaseFirestore.instance
+                    .collection("pengunjung")
+                    .doc(currentDate)
+                    .get()
+                    .then((docSnapshot) {
+                  if (docSnapshot.exists &&
+                      docSnapshot.data()!.containsKey("value")) {
+                    dataDocs = docSnapshot.data()!["value"].toString();
+                  } else {
+                    dataDocs = "0";
+                  }
+                });
+                return dataDocs;
+              }
+
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
@@ -40,14 +69,28 @@ class CashierScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        boxRectangle(
-                            "Hari ini",
-                            items.docs[items.docs.length - 1]["value"]
-                                .toString()),
-                        boxRectangle(
-                            "Kemarin",
-                            items.docs[items.docs.length - 2]["value"]
-                                .toString())
+                        FutureBuilder(
+                          future: pengunjungDataNow(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String?> snapshot) {
+                            if (snapshot.hasData) {
+                              return boxRectangle("Hari ini", snapshot.data!);
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
+                          },
+                        ),
+                        FutureBuilder(
+                          future: pengunjungDataNow(kapan: 1),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String?> snapshot) {
+                            if (snapshot.hasData) {
+                              return boxRectangle("Kemarin", snapshot.data!);
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(
@@ -58,14 +101,7 @@ class CashierScreen extends StatelessWidget {
                         Expanded(
                             child: boxRectangle(
                                 "Pengunjung Jam ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : DateTime.now().hour}",
-                                items.docs[items.docs.length - 1]
-                                        .toString()
-                                        .contains(
-                                            "pengunjung_jam_${DateTime.now().hour}")
-                                    ? items.docs[items.docs.length - 1][
-                                            "pengunjung_jam_${DateTime.now().hour}"]
-                                        .toString()
-                                    : "0",
+                                pengunjungDataNowHour,
                                 height: 100)),
                       ],
                     ),
