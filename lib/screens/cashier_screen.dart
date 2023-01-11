@@ -132,9 +132,12 @@ class CashierScreen extends StatelessWidget {
                                 context: context,
                                 removeTop: true,
                                 child: ListView(
+                                  reverse: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   children: snapshot.data!.docs
+                                      .getRange(
+                                          0, snapshot.data!.docs.length - 2)
                                       .map((DocumentSnapshot document) {
                                         Map<String, dynamic> data = document
                                             .data()! as Map<String, dynamic>;
