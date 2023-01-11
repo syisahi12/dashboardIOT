@@ -76,7 +76,7 @@ class CashierScreen extends StatelessWidget {
                             if (snapshot.hasData) {
                               return boxRectangle("Hari ini", snapshot.data!);
                             } else {
-                              return const CircularProgressIndicator();
+                              return boxRectangle("Hari ini", "...");
                             }
                           },
                         ),
@@ -87,7 +87,7 @@ class CashierScreen extends StatelessWidget {
                             if (snapshot.hasData) {
                               return boxRectangle("Kemarin", snapshot.data!);
                             } else {
-                              return const CircularProgressIndicator();
+                              return boxRectangle("Kemarin", "...");
                             }
                           },
                         ),
