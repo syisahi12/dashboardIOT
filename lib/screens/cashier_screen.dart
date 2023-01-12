@@ -29,12 +29,14 @@ class CashierScreen extends StatelessWidget {
               );
             } else {
               var items = snapshot.data;
+              final leadeingHour =
+                  DateTime.now().hour.toString().padLeft(2, '0');
               final pengunjungDataNowHour = items!.docs[items.docs.length - 1]
                       .data()
                       .toString()
-                      .contains("pengunjung_jam_${DateTime.now().hour}")
+                      .contains("pengunjung_jam_$leadeingHour")
                   ? items.docs[items.docs.length - 1]
-                          ["pengunjung_jam_${DateTime.now().hour}"]
+                          ["pengunjung_jam_$leadeingHour"]
                       .toString()
                   : "0";
               Future<String?> pengunjungDataNow({int kapan = 0}) async {
@@ -100,7 +102,7 @@ class CashierScreen extends StatelessWidget {
                       children: [
                         Expanded(
                             child: boxRectangle(
-                                "Pengunjung ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : "Jam ${DateTime.now().hour}"}",
+                                "Pengunjung ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : "Jam $leadeingHour"}",
                                 pengunjungDataNowHour,
                                 height: 100)),
                       ],
