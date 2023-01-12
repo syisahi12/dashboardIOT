@@ -1,9 +1,43 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dashboard/theme.dart';
 import 'package:flutter/material.dart';
 
-class CashierScreen extends StatelessWidget {
+class CashierScreen extends StatefulWidget {
   const CashierScreen({Key? key}) : super(key: key);
+
+  @override
+  State<CashierScreen> createState() => _CashierScreenState();
+}
+
+class _CashierScreenState extends State<CashierScreen> {
+  String _leadeingHour = "";
+  String _minute = "";
+  Timer? _timer;
+  void _updateLeadingHour() {
+    _leadeingHour = DateTime.now().hour.toString().padLeft(2, '0');
+    _minute = DateTime.now().minute.toString();
+    setState(() {
+      _leadeingHour;
+      _minute;
+    });
+    _timer = Timer(const Duration(minutes: 1), _updateLeadingHour);
+  }
+
+  @override
+  void initState() {
+    _updateLeadingHour();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
@@ -29,14 +63,12 @@ class CashierScreen extends StatelessWidget {
               );
             } else {
               var items = snapshot.data;
-              final leadeingHour =
-                  DateTime.now().hour.toString().padLeft(2, '0');
               final pengunjungDataNowHour = items!.docs[items.docs.length - 1]
                       .data()
                       .toString()
-                      .contains("pengunjung_jam_$leadeingHour")
+                      .contains("pengunjung_jam_$_leadeingHour")
                   ? items.docs[items.docs.length - 1]
-                          ["pengunjung_jam_$leadeingHour"]
+                          ["pengunjung_jam_$_leadeingHour"]
                       .toString()
                   : "0";
               Future<String?> pengunjungDataNow({int kapan = 0}) async {
@@ -102,7 +134,7 @@ class CashierScreen extends StatelessWidget {
                       children: [
                         Expanded(
                             child: boxRectangle(
-                                "Pengunjung ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : "Jam $leadeingHour"}",
+                                "Pengunjung ${DateTime.now().hour > 20 || DateTime.now().hour < 7 ? "" : "Jam $_leadeingHour : $_minute"}",
                                 pengunjungDataNowHour,
                                 height: 100)),
                       ],
