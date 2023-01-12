@@ -17,7 +17,7 @@ class _CashierScreenState extends State<CashierScreen> {
   Timer? _timer;
   void _updateLeadingHour() {
     _leadeingHour = DateTime.now().hour.toString().padLeft(2, '0');
-    _minute = DateTime.now().minute.toString();
+    _minute = DateTime.now().minute.toString().padLeft(2, '0');
     setState(() {
       _leadeingHour;
       _minute;
